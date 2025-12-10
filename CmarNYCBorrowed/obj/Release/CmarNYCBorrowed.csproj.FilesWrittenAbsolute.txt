@@ -1,0 +1,4 @@
+/home/andrew/Projects/The Sims 3 Projects/Source Code/CmarNYCBorrowed/CmarNYCBorrowed/bin/Release/CmarNYCBorrowed.dll
+/home/andrew/Projects/The Sims 3 Projects/Source Code/CmarNYCBorrowed/CmarNYCBorrowed/obj/Release/CmarNYCBorrowed.dll
+/home/andrew/Projects/The Sims 3 Projects/Source Code/CmarNYCBorrowed/CmarNYCBorrowed/bin/Release/Destrospean.S3PIAbstractions.dll
+/home/andrew/Projects/The Sims 3 Projects/Source Code/CmarNYCBorrowed/CmarNYCBorrowed/obj/Release/.NETFramework,Version=v4.0.AssemblyAttribute.cs
