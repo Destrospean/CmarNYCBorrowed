@@ -55,6 +55,10 @@ namespace Destrospean.CmarNYCBorrowed
             patternImage = new Bitmap(width, height, PixelFormat.Format32bppArgb);
             var patternBack = new Bitmap[3];
             var rgbMaskArray = package.GetTextureARGBArray(pattern.RGBMask, width, height);
+            if (background == null || patternImage == null || rgbMaskArray == null)
+            {
+                return null;
+            }
             for (var i = 0; pattern.Channels != null && i < pattern.Channels.Length; i++)
             {
                 patternBack[i] = package.GetTexture(pattern.Channels[i], width, height);
@@ -80,7 +84,7 @@ namespace Destrospean.CmarNYCBorrowed
 #else
             Marshal.Copy(new IntPtr(bitmapData1.Scan0.ToInt64() + (bitmapData1.Stride > 0 ? 0 : bitmapData1.Stride * (background.Height - 1))), backArray, 0, backArray.Length);
 #endif
-            if (pattern.ChannelsEnabled.Length > 0 && pattern.ChannelsEnabled[0])
+            if (pattern.ChannelsEnabled != null && pattern.ChannelsEnabled.Length > 0 && pattern.ChannelsEnabled[0] && patternBack[0] != null)
             {
                 bitmapData2 = patternBack[0].LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, patternBack[0].PixelFormat);
                 greenArray = new byte[Math.Abs(bitmapData2.Stride) * patternBack[0].Height];
@@ -90,7 +94,7 @@ namespace Destrospean.CmarNYCBorrowed
                 Marshal.Copy(new IntPtr(bitmapData2.Scan0.ToInt64() + (bitmapData2.Stride > 0 ? 0 : bitmapData2.Stride * (patternBack[0].Height - 1))), greenArray, 0, greenArray.Length);
 #endif
             }
-            if (pattern.ChannelsEnabled.Length > 1 && pattern.ChannelsEnabled[1])
+            if (pattern.ChannelsEnabled != null && pattern.ChannelsEnabled.Length > 1 && pattern.ChannelsEnabled[1] && patternBack[1] != null)
             {
                 bitmapData3 = patternBack[1].LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, patternBack[1].PixelFormat);
                 blueArray = new byte[Math.Abs(bitmapData3.Stride) * patternBack[1].Height];
@@ -100,7 +104,7 @@ namespace Destrospean.CmarNYCBorrowed
                 Marshal.Copy(new IntPtr(bitmapData3.Scan0.ToInt64() + (bitmapData3.Stride > 0 ? 0 : bitmapData3.Stride * (patternBack[1].Height - 1))), blueArray, 0, blueArray.Length);
 #endif
             }
-            if (pattern.ChannelsEnabled.Length > 2 && pattern.ChannelsEnabled[2])
+            if (pattern.ChannelsEnabled != null && pattern.ChannelsEnabled.Length > 2 && pattern.ChannelsEnabled[2] && patternBack[2] != null)
             {
                 bitmapData4 = patternBack[2].LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, patternBack[2].PixelFormat);
                 alphaArray = new byte[Math.Abs(bitmapData4.Stride) * patternBack[2].Height];
@@ -119,7 +123,7 @@ namespace Destrospean.CmarNYCBorrowed
                 var hsv = new HSVColor(backArray[i + 2], backArray[i + 1], backArray[i]);
                 byte[] color = (hsv + backChannel).ToRGB(),
                 maskArray = BitConverter.GetBytes(rgbMaskArray[i >> 2]);
-                if (pattern.ChannelsEnabled.Length > 0 && pattern.ChannelsEnabled[0] && maskArray[1] > 0)
+                if (pattern.ChannelsEnabled != null && pattern.ChannelsEnabled.Length > 0 && pattern.ChannelsEnabled[0] && maskArray[1] > 0)
                 {
                     var tempHSV = new HSVColor(greenArray[i + 2], greenArray[i + 1], greenArray[i]);
                     var tempColor = (tempHSV + greenChannel).ToRGB();
@@ -129,7 +133,7 @@ namespace Destrospean.CmarNYCBorrowed
                         color[j] = (byte)(tempColor[j] * weight + color[j] * (1 - weight));
                     }
                 }
-                if (pattern.ChannelsEnabled.Length > 1 && pattern.ChannelsEnabled[1] && maskArray[0] > 0)
+                if (pattern.ChannelsEnabled != null && pattern.ChannelsEnabled.Length > 1 && pattern.ChannelsEnabled[1] && maskArray[0] > 0)
                 {
                     var tempHSV = new HSVColor(blueArray[i + 2], blueArray[i + 1], blueArray[i]);
                     var tempColor = (tempHSV + blueChannel).ToRGB();
@@ -139,7 +143,7 @@ namespace Destrospean.CmarNYCBorrowed
                         color[j] = (byte)(tempColor[j] * weight + color[j] * (1 - weight));
                     }
                 }
-                if (pattern.ChannelsEnabled.Length > 2 && pattern.ChannelsEnabled[2] && maskArray[3] > 0)
+                if (pattern.ChannelsEnabled != null && pattern.ChannelsEnabled.Length > 2 && pattern.ChannelsEnabled[2] && maskArray[3] > 0)
                 {
                     var tempHSV = new HSVColor(alphaArray[i + 2], alphaArray[i + 1], alphaArray[i]);
                     var tempColor = (tempHSV + alphaChannel).ToRGB();
@@ -156,15 +160,15 @@ namespace Destrospean.CmarNYCBorrowed
             Marshal.Copy(finalArray, 0, ptr, finalArray.Length);
             patternImage.UnlockBits(bitmapData0);
             background.UnlockBits(bitmapData1);
-            if (pattern.ChannelsEnabled.Length > 0 && pattern.ChannelsEnabled[0])
+            if (pattern.ChannelsEnabled != null && pattern.ChannelsEnabled.Length > 0 && pattern.ChannelsEnabled[0])
             {
                 patternBack[0].UnlockBits(bitmapData2);
             }
-            if (pattern.ChannelsEnabled.Length > 1 && pattern.ChannelsEnabled[1])
+            if (pattern.ChannelsEnabled != null && pattern.ChannelsEnabled.Length > 1 && pattern.ChannelsEnabled[1])
             {
                 patternBack[1].UnlockBits(bitmapData3);
             }
-            if (pattern.ChannelsEnabled.Length > 2 && pattern.ChannelsEnabled[2])
+            if (pattern.ChannelsEnabled != null && pattern.ChannelsEnabled.Length > 2 && pattern.ChannelsEnabled[2])
             {
                 patternBack[2].UnlockBits(bitmapData4);
             }
@@ -181,6 +185,10 @@ namespace Destrospean.CmarNYCBorrowed
             var bitmapData = texture.LockBits(rectangle, ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
             var byteCount = Math.Abs(bitmapData.Stride) * texture.Height;
             var maskArray = package.GetTextureARGBArray(pattern.RGBMask, width, height);
+            if (maskArray == null)
+            {
+                return null;
+            }
             var textureArray = new byte[byteCount];
             for (var i = 0; i < maskArray.Length; i += 4)
             {
@@ -371,11 +379,10 @@ namespace Destrospean.CmarNYCBorrowed
                 Marshal.Copy(multiplierArray, 0, ptr, byteCount);
                 multiplierCopy.UnlockBits(bitmapData);
             }
-            catch (IndexOutOfRangeException ex)
+            catch (IndexOutOfRangeException)
             {
-                Console.WriteLine(ex);
                 multiplierCopy.UnlockBits(bitmapData);
-                return multiplier;
+                throw;
             }
             return multiplierCopy;
         }
