@@ -721,7 +721,7 @@ namespace Destrospean.CmarNYCBorrowed
                     }
                     var bones = baseMesh.GetBones(i);
                     var tempBones = new int[bones.Length];
-                    var boneWeights = baseMesh.GetBoneWeights(i);
+                    var boneWeights = baseMesh.GetBoneWeightsV5(i);
                     var tempWeights = new float[boneWeights.Length];
                     for (var j = 0; j < bones.Length; j++)
                     {
@@ -790,7 +790,7 @@ namespace Destrospean.CmarNYCBorrowed
                     }
                     var bones = baseMesh.GetBones(i);
                     var tempBones = new int[bones.Length];
-                    var boneWeights = baseMesh.GetBoneWeights(i);
+                    var boneWeights = baseMesh.GetBoneWeightsV5(i);
                     var tempWeights = new float[boneWeights.Length];
                     for (var j = 0; j < bones.Length; j++)
                     {

@@ -599,8 +599,9 @@ namespace Destrospean.CmarNYCBorrowed
 
         public class Bones
         {
-            byte[] mAssignments = new byte[4],
-            mWeights = new byte[4];
+            byte[] mAssignments = new byte[4];
+
+            float[] mWeights = new float[4];
 
             public byte[] BoneAssignments
             {
@@ -629,10 +630,10 @@ namespace Destrospean.CmarNYCBorrowed
                 {
                     return new byte[]
                     {
-                        mWeights[0],
-                        mWeights[1],
-                        mWeights[2],
-                        mWeights[3]
+                        (byte)(mWeights[0] * byte.MaxValue),
+                        (byte)(mWeights[1] * byte.MaxValue),
+                        (byte)(mWeights[2] * byte.MaxValue),
+                        (byte)(mWeights[3] * byte.MaxValue)
                     };
                 }
                 set
@@ -643,7 +644,7 @@ namespace Destrospean.CmarNYCBorrowed
                         mWeights[i] = value[i];
                         total += value[i];
                     }
-                    mWeights[0] += (byte)(byte.MaxValue - total);
+                    mWeights[0] += (float)(byte.MaxValue - total) / byte.MaxValue;
                 }
             }
 
@@ -663,7 +664,7 @@ namespace Destrospean.CmarNYCBorrowed
                 {
                     for (var i = 0; i < mAssignments.Length; i++)
                     {
-                        mWeights[i] = (byte)(Math.Min(value[i] * byte.MaxValue, byte.MaxValue));
+                        mWeights[i] = value[i];
                     }
                 }
             }
@@ -677,7 +678,7 @@ namespace Destrospean.CmarNYCBorrowed
                 for (var i = 0; i < 4; i++)
                 {
                     mAssignments[i] = assignmentsIn[i];
-                    mWeights[i] = weightsIn[i];
+                    mWeights[i] = (float)weightsIn[i] / byte.MaxValue;
                 }
             }
 
@@ -686,7 +687,7 @@ namespace Destrospean.CmarNYCBorrowed
                 for (var i = 0; i < 4; i++)
                 {
                     mAssignments[i] = assignmentsIn[i];
-                    mWeights[i] = (byte)(Math.Min(weightsIn[i] * byte.MaxValue, byte.MaxValue));
+                    mWeights[i] = weightsIn[i];
                 }
             }
 
@@ -695,7 +696,7 @@ namespace Destrospean.CmarNYCBorrowed
                 for (var i = 0; i < 4; i++)
                 {
                     mAssignments[i] = (byte)assignmentsIn[i];
-                    mWeights[i] = weightsIn[i];
+                    mWeights[i] = (float)weightsIn[i] / byte.MaxValue;
                 }
             }
 
@@ -704,7 +705,7 @@ namespace Destrospean.CmarNYCBorrowed
                 for (var i = 0; i < 4; i++)
                 {
                     mAssignments[i] = (byte)assignmentsIn[i];
-                    mWeights[i] = (byte)(Math.Min(weightsIn[i] * byte.MaxValue, byte.MaxValue));
+                    mWeights[i] = weightsIn[i];
                 }
             }
 
@@ -736,14 +737,14 @@ namespace Destrospean.CmarNYCBorrowed
                 {
                     for (var i = 0; i < 4; i++)
                     {
-                        mWeights[i] = (byte)(Math.Min(reader.ReadSingle() * byte.MaxValue, byte.MaxValue));
+                        mWeights[i] = reader.ReadSingle();
                     }
                 }
                 else if (subType == 2)
                 {
                     for (var i = 0; i < 4; i++)
                     {
-                        mWeights[i] = reader.ReadByte();
+                        mWeights[i] = (float)reader.ReadByte() / byte.MaxValue;
                     }
                 }
             }
@@ -756,8 +757,8 @@ namespace Destrospean.CmarNYCBorrowed
                     {
                         if (mWeights[j] < mWeights[j + 1])
                         {
-                            byte tempAssignments = mAssignments[j],
-                            tempWeights = mWeights[j];
+                            var tempAssignments = mAssignments[j];
+                            var tempWeights = mWeights[j];
                             mAssignments[j] = mAssignments[j + 1];
                             mAssignments[j + 1] = tempAssignments;
                             mWeights[j] = mWeights[j + 1];
@@ -799,16 +800,16 @@ namespace Destrospean.CmarNYCBorrowed
 
             public void WriteWeights(BinaryWriter writer, int version)
             {
-                if (version == 5)
+                for (var i = 0; i < 4; i++)
                 {
-                    for (var i = 0; i < 4; i++)
+                    if (version == 5)
                     {
-                        writer.Write((float)mWeights[i] / byte.MaxValue);
+                        writer.Write(mWeights[i]);
                     }
-                }
-                else if (version >= 12)
-                {
-                    writer.Write(mWeights);
+                    else if (version >= 12)
+                    {
+                        writer.Write((byte)(mWeights[i] * byte.MaxValue));
+                    }
                 }
             }
         }
@@ -2362,14 +2363,14 @@ namespace Destrospean.CmarNYCBorrowed
                             {
                                 mBones[j] = new Bones();
                             }
-                            byte[] temp =
+                            float[] temp =
                                 {
-                                    source.mBones[j].BoneWeights[0],
-                                    source.mBones[j].BoneWeights[1], 
-                                    source.mBones[j].BoneWeights[2],
-                                    source.mBones[j].BoneWeights[3]
+                                    source.mBones[j].BoneWeightsV5[0],
+                                    source.mBones[j].BoneWeightsV5[1], 
+                                    source.mBones[j].BoneWeightsV5[2],
+                                    source.mBones[j].BoneWeightsV5[3]
                                 };
-                            mBones[j].BoneWeights = temp;
+                            mBones[j].BoneWeightsV5 = temp;
                         }
                         break;
                     case 6:
@@ -2494,8 +2495,8 @@ namespace Destrospean.CmarNYCBorrowed
                         for (var j = 0; j < mVertexCount; j++)
                         {
                             byte[] oldBones = GetBones(j),
-                            oldWeights = GetBoneWeights(j),
                             tempBones = new byte[oldBones.Length];
+                            var oldWeights = GetBoneWeightsV5(j);
                             for (var k = 0; k < oldBones.Length; k++)
                             {
                                 if (oldWeights[k] > 0 && oldBones[k] < mBoneHashArray.Length)
@@ -2512,8 +2513,8 @@ namespace Destrospean.CmarNYCBorrowed
                         for (var j = 0; j < meshToAppend.mVertexCount; j++)
                         {
                             byte[] oldBones = meshToAppend.GetBones(j),
-                            oldWeights = meshToAppend.GetBoneWeights(j),
                             tempBones = new byte[oldBones.Length];
+                            var oldWeights = meshToAppend.GetBoneWeightsV5(j);
                             for (var k = 0; k < oldBones.Length; k++)
                             {
                                 if (oldWeights[k] > 0 && oldBones[k] < meshToAppend.mBoneHashArray.Length)
@@ -3261,8 +3262,8 @@ namespace Destrospean.CmarNYCBorrowed
             var usedBones = new List<byte>();
             for (var i = 0; i < mVertexCount; i++)
             {
-                byte[] sourceBones = GetBones(i),
-                sourceWeights = GetBoneWeights(i);
+                var sourceBones = GetBones(i);
+                var sourceWeights = GetBoneWeightsV5(i);
                 for (var j = 0; j < 4; j++)
                 {
                     if (sourceWeights[j] > 0 & !(usedBones.IndexOf(sourceBones[j]) >= 0))
@@ -3280,8 +3281,8 @@ namespace Destrospean.CmarNYCBorrowed
             for (var i = 0; i < mVertexCount; i++)
             {
                 byte[] sourceBones = GetBones(i),
-                sourceWeights = GetBoneWeights(i),
                 bones = new byte[sourceBones.Length];
+                var sourceWeights = GetBoneWeightsV5(i);
                 for (var j = 0; j < 4; j++)
                 {
                     if (sourceWeights[j] > 0)
@@ -3588,13 +3589,13 @@ namespace Destrospean.CmarNYCBorrowed
 
         public float GetBoneWeightForVertex(int vertexIndex, uint boneHash)
         {
-            byte[] vertexBones = GetBones(vertexIndex),
-            vertexWeights = GetBoneWeights(vertexIndex);
+            var vertexBones = GetBones(vertexIndex);
+            var vertexWeights = GetBoneWeightsV5(vertexIndex);
             for (var i = 0; i < 4; i++)
             {
                 if (mBoneHashArray[vertexBones[i]] == boneHash)
                 {
-                    return (float)vertexWeights[i] / byte.MaxValue;
+                    return vertexWeights[i];
                 }
             }
             return 0;
@@ -3736,14 +3737,14 @@ namespace Destrospean.CmarNYCBorrowed
 
         public float GetTotalBoneWeight(int vertexIndex, List<uint> boneHashes)
         {
-            byte[] vertexBones = GetBones(vertexIndex),
-            vertexWeights = GetBoneWeights(vertexIndex);
+            var vertexBones = GetBones(vertexIndex);
+            var vertexWeights = GetBoneWeightsV5(vertexIndex);
             var totalWeight = 0f;
             for (var i = 0; i < 4; i++)
             {
                 if (vertexBones[i] < mBoneHashArray.Length && vertexBones[i] >= 0 && boneHashes.Contains(mBoneHashArray[vertexBones[i]]))
                 {
-                    totalWeight += (float)vertexWeights[i] / byte.MaxValue;
+                    totalWeight += vertexWeights[i];
                 }
             }
             return totalWeight;
@@ -3759,6 +3760,7 @@ namespace Destrospean.CmarNYCBorrowed
             return (int)mVertexIDs[vertexSequenceNumber];
         }
 
+        /*
         public int[] GetVertexIndicesAssignedtoBone(uint boneHash)
         {
             var index = GetBoneIndex(boneHash);
@@ -3781,6 +3783,7 @@ namespace Destrospean.CmarNYCBorrowed
             }
             return vertices.ToArray();
         }
+        */
 
         public bool HasBlueVertexColor
         {
@@ -4084,7 +4087,8 @@ namespace Destrospean.CmarNYCBorrowed
                 }
             }
         }
-
+            
+        /*
         public static void MatchSeamVertices(GEOM geom)
         {
             for (var i = 0; i < geom.mVertexCount; i++)
@@ -4208,6 +4212,7 @@ namespace Destrospean.CmarNYCBorrowed
             geom1.mUVStitches = geom1Stitches.ToArray();
             geom2.mUVStitches = geom2Stitches.ToArray();
         }
+        */
 
         public void Read(BinaryReader reader)
         {
@@ -7686,8 +7691,8 @@ namespace Destrospean.CmarNYCBorrowed
 
         public bool ValidBones(int vertexSequenceNumber)
         {
-            byte[] vertexBones = GetBones(vertexSequenceNumber),
-            vertexWeights = GetBoneWeights(vertexSequenceNumber);
+            var vertexBones = GetBones(vertexSequenceNumber);
+            var vertexWeights = GetBoneWeightsV5(vertexSequenceNumber);
             if (mVersion == 5)
             {
                 for (var i = 0; i < 4; i++)
