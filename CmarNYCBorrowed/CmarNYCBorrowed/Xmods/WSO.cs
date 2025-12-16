@@ -1291,11 +1291,15 @@ namespace Destrospean.CmarNYCBorrowed
         {
         }
 
-        public WSO(GEOM baseMesh, GEOM[] morphs, bool group0 = false) : this(baseMesh, morphs.Length > 0 ? morphs[0] : null, morphs.Length > 1 ? morphs[1] : null, morphs.Length > 2 ? morphs[2] : null, morphs.Length > 3 ? morphs[3] : null, group0)
+        public WSO(GEOM baseMesh, GEOM[] morphs) : this(baseMesh, Array.FindAll(morphs, x => x.IsValid), Array.FindAll(morphs, x => x.IsValid).Length == 1)
         {
         }
 
-        public WSO(GEOM baseMesh, GEOM fatMorph, GEOM fitMorph, GEOM thinMorph, GEOM specialMorph, bool group0 = false)
+        public WSO(GEOM baseMesh, GEOM[] morphs, bool group0) : this(baseMesh, morphs.Length > 0 ? morphs[0] : null, morphs.Length > 1 ? morphs[1] : null, morphs.Length > 2 ? morphs[2] : null, morphs.Length > 3 ? morphs[3] : null, group0)
+        {
+        }
+
+        public WSO(GEOM baseMesh, GEOM fatMorph, GEOM fitMorph, GEOM thinMorph, GEOM specialMorph, bool group0)
         {
             mVersion = 4;
             var count = 1;

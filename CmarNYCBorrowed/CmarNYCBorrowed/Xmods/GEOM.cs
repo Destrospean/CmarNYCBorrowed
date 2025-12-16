@@ -248,7 +248,7 @@ namespace Destrospean.CmarNYCBorrowed
                                 }
                                 break;
                             case 10:
-                                if (mVertexIDs.Length != mVertexCount)
+                                if (mVertexIDs == null || mVertexIDs.Length != mVertexCount)
                                 {
                                     isValid = false;
                                 }
@@ -3759,14 +3759,16 @@ namespace Destrospean.CmarNYCBorrowed
         {
             return (int)mVertexIDs[vertexSequenceNumber];
         }
-
-        /*
+            
         public int[] GetVertexIndicesAssignedtoBone(uint boneHash)
         {
             var index = GetBoneIndex(boneHash);
             if (index < 0)
             {
-                return new int[] { };
+                return new int[]
+                {
+
+                };
             }
             var vertices = new List<int>();
             for (var i = 0; i < VertexCount; i++)
@@ -3783,7 +3785,6 @@ namespace Destrospean.CmarNYCBorrowed
             }
             return vertices.ToArray();
         }
-        */
 
         public bool HasBlueVertexColor
         {
@@ -4087,8 +4088,7 @@ namespace Destrospean.CmarNYCBorrowed
                 }
             }
         }
-            
-        /*
+
         public static void MatchSeamVertices(GEOM geom)
         {
             for (var i = 0; i < geom.mVertexCount; i++)
@@ -4212,7 +4212,6 @@ namespace Destrospean.CmarNYCBorrowed
             geom1.mUVStitches = geom1Stitches.ToArray();
             geom2.mUVStitches = geom2Stitches.ToArray();
         }
-        */
 
         public void Read(BinaryReader reader)
         {
@@ -7908,7 +7907,6 @@ namespace Destrospean.CmarNYCBorrowed
             {
                 mTGIs[i].Write(writer);
             }
-            return;
         }
     }
 }
