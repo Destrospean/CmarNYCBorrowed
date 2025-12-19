@@ -15,6 +15,8 @@ namespace Destrospean.CmarNYCBorrowed
 
         static Dictionary<string, Bitmap> sPreloadedGameImages, sPreloadedImages;
 
+        public delegate Bitmap GetTextureDelegate(IPackage package, IResourceIndexEntry resourceIndexEntry);
+
         public static Dictionary<string, Bitmap> PreloadedGameImages
         {
             get
@@ -47,21 +49,21 @@ namespace Destrospean.CmarNYCBorrowed
             }
         }
 
-        public static Bitmap GetHSVPatternImage(this IPackage package, PatternInfo pattern)
+        public static Bitmap GetHSVPatternImage(this IPackage package, PatternInfo pattern, GetTextureDelegate getTextureCallback)
         {
             int height = 256,
             width = 256;
-            Bitmap background = package.GetTexture(pattern.Background, width, height),
+            Bitmap background = pattern.Background == null ? null : package.GetTexture(pattern.Background, getTextureCallback, width, height),
             patternImage = new Bitmap(width, height, PixelFormat.Format32bppArgb);
             var patternBack = new Bitmap[3];
-            var rgbMaskArray = package.GetTextureARGBArray(pattern.RGBMask, width, height);
+            var rgbMaskArray = package.GetTextureARGBArray(pattern.RGBMask, getTextureCallback, width, height);
             if (background == null || patternImage == null || rgbMaskArray == null)
             {
                 return null;
             }
             for (var i = 0; pattern.Channels != null && i < pattern.Channels.Length; i++)
             {
-                patternBack[i] = package.GetTexture(pattern.Channels[i], width, height);
+                patternBack[i] = package.GetTexture(pattern.Channels[i], getTextureCallback, width, height);
             }
             BitmapData bitmapData0 = patternImage.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, patternImage.PixelFormat),
             bitmapData1 = background.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, background.PixelFormat),
@@ -172,19 +174,26 @@ namespace Destrospean.CmarNYCBorrowed
             {
                 patternBack[2].UnlockBits(bitmapData4);
             }
+            for (var x = 0; x < patternImage.Width; x++)
+            {
+                for (var y = 0; y < patternImage.Height; y++)
+                {
+                    patternImage.SetPixel(x, y, Color.FromArgb(patternImage.GetPixel(x, y).ToArgb() | byte.MaxValue << 24));
+                }
+            }
             return patternImage;
         }
 
-        public static Bitmap GetRGBPatternImage(this IPackage package, PatternInfo pattern)
+        public static Bitmap GetRGBPatternImage(this IPackage package, PatternInfo pattern, GetTextureDelegate getTextureCallback)
         {
             int height = 256,
             width = 256;
             var colors = pattern.RGBColors;
-            var texture = new Bitmap(width, height);
+            var patternImage = new Bitmap(width, height);
             var rectangle = new Rectangle(0, 0, width, height);
-            var bitmapData = texture.LockBits(rectangle, ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
-            var byteCount = Math.Abs(bitmapData.Stride) * texture.Height;
-            var maskArray = package.GetTextureARGBArray(pattern.RGBMask, width, height);
+            var bitmapData = patternImage.LockBits(rectangle, ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
+            var byteCount = Math.Abs(bitmapData.Stride) * patternImage.Height;
+            var maskArray = package.GetTextureARGBArray(pattern.RGBMask, getTextureCallback, width, height);
             if (maskArray == null)
             {
                 return null;
@@ -218,13 +227,13 @@ namespace Destrospean.CmarNYCBorrowed
 #if WIN32
             Marshal.Copy(textureArray, 0, new IntPtr(bitmapData.Scan0.ToInt32() + (bitmapData.Stride > 0 ? 0 : bitmapData.Stride * (texture.Height - 1))), byteCount);
 #else
-            Marshal.Copy(textureArray, 0, new IntPtr(bitmapData.Scan0.ToInt64() + (bitmapData.Stride > 0 ? 0 : bitmapData.Stride * (texture.Height - 1))), byteCount);
+            Marshal.Copy(textureArray, 0, new IntPtr(bitmapData.Scan0.ToInt64() + (bitmapData.Stride > 0 ? 0 : bitmapData.Stride * (patternImage.Height - 1))), byteCount);
 #endif
-            texture.UnlockBits(bitmapData);
-            return texture;
+            patternImage.UnlockBits(bitmapData);
+            return patternImage;
         }
 
-        public static Bitmap GetTexture(this IPackage package, string key, int[] dimensions = null)
+        public static Bitmap GetTexture(this IPackage package, string key, GetTextureDelegate getTextureCallback, int[] dimensions = null)
         {
             Bitmap image;
             if (!PreloadedGameImages.TryGetValue(key, out image) && !PreloadedImages.TryGetValue(key, out image))
@@ -238,7 +247,7 @@ namespace Destrospean.CmarNYCBorrowed
                 {
                     return null;
                 }
-                image = GDImageLibrary._DDS.LoadImage(s3pi.WrapperDealer.WrapperDealer.GetResource(0, evaluated.Package, evaluated.ResourceIndexEntry).AsBytes);
+                image = getTextureCallback(evaluated.Package, evaluated.ResourceIndexEntry);
                 if (evaluated.Package == package)
                 {
                     PreloadedImages.Add(key, image);
@@ -255,18 +264,18 @@ namespace Destrospean.CmarNYCBorrowed
             return (Bitmap)image.Clone();
         }
 
-        public static Bitmap GetTexture(this IPackage package, string key, int width, int height)
+        public static Bitmap GetTexture(this IPackage package, string key, GetTextureDelegate getTextureCallback, int width, int height)
         {
-            return package.GetTexture(key, new int[]
+            return package.GetTexture(key, getTextureCallback, new int[]
                 {
                     width,
                     height
                 });
         }
 
-        public static uint[] GetTextureARGBArray(this IPackage package, string key, int[] dimensions = null)
+        public static uint[] GetTextureARGBArray(this IPackage package, string key, GetTextureDelegate getTextureCallback, int[] dimensions = null)
         {
-            var image = package.GetTexture(key, dimensions);
+            var image = package.GetTexture(key, getTextureCallback, dimensions);
             if (image == null)
             {
                 return null;
@@ -284,9 +293,9 @@ namespace Destrospean.CmarNYCBorrowed
             return argbValues;
         }
 
-        public static uint[] GetTextureARGBArray(this IPackage package, string key, int width, int height)
+        public static uint[] GetTextureARGBArray(this IPackage package, string key, GetTextureDelegate getTextureCallback, int width, int height)
         {
-            return package.GetTextureARGBArray(key, new int[]
+            return package.GetTextureARGBArray(key, getTextureCallback, new int[]
                 {
                     width,
                     height
@@ -298,92 +307,84 @@ namespace Destrospean.CmarNYCBorrowed
             var multiplierCopy = (Bitmap)multiplier.Clone();
             var rectangle = new Rectangle(0, 0, multiplierCopy.Width, multiplierCopy.Height);
             var bitmapData = multiplierCopy.LockBits(rectangle, ImageLockMode.ReadWrite, multiplierCopy.PixelFormat);
-            try
-            {
-                var byteCount = Math.Abs(bitmapData.Stride) * multiplierCopy.Height;
-                var multiplierArray = new byte[byteCount];
+            var byteCount = Math.Abs(bitmapData.Stride) * multiplierCopy.Height;
+            var multiplierArray = new byte[byteCount];
 #if WIN32
-                var ptr = new IntPtr(bitmapData.Scan0.ToInt32() + (bitmapData.Stride > 0 ? 0 : bitmapData.Stride * (multiplierCopy.Height - 1)));
+            var ptr = new IntPtr(bitmapData.Scan0.ToInt32() + (bitmapData.Stride > 0 ? 0 : bitmapData.Stride * (multiplierCopy.Height - 1)));
 #else
-                var ptr = new IntPtr(bitmapData.Scan0.ToInt64() + (bitmapData.Stride > 0 ? 0 : bitmapData.Stride * (multiplierCopy.Height - 1)));
+            var ptr = new IntPtr(bitmapData.Scan0.ToInt64() + (bitmapData.Stride > 0 ? 0 : bitmapData.Stride * (multiplierCopy.Height - 1)));
 #endif
-                Marshal.Copy(ptr, multiplierArray, 0, byteCount);
-                for (var i = 0; i < byteCount; i += 4)
-                {
-                    var gray = (multiplierArray[i] + multiplierArray[i + 1] + multiplierArray[i + 2]) * kOneThirdInverseByteMax * (overlay ? 1 : 2);
-                    byte[] mask = BitConverter.GetBytes(maskArray[i >> 2]),
-                    maskControl =
-                        {
-                            mask[2],
-                            mask[1],
-                            mask[0],
-                            mask[3]
-                        };
-                    for (var j = 0; j < patternImages.Count - 1; j++)
+            Marshal.Copy(ptr, multiplierArray, 0, byteCount);
+            for (var i = 0; i < byteCount; i += 4)
+            {
+                var gray = (multiplierArray[i] + multiplierArray[i + 1] + multiplierArray[i + 2]) * kOneThirdInverseByteMax * (overlay ? 1 : 2);
+                byte[] mask = BitConverter.GetBytes(maskArray[i >> 2]),
+                maskControl =
                     {
-                        var blend = maskControl[j] * kInverseByteMax;
-                        if (patternImages[j] != null && maskControl[j] > 0)
+                        mask[2],
+                        mask[1],
+                        mask[0],
+                        mask[3]
+                    };
+                for (var j = 0; j < patternImages.Count - 1; j++)
+                {
+                    var blend = maskControl[j] * kInverseByteMax;
+                    if (patternImages[j] != null && maskControl[j] > 0)
+                    {
+                        var rgba = patternImages[j] as float[];
+                        if (rgba != null)
                         {
-                            var rgba = patternImages[j] as float[];
-                            if (rgba != null)
+                            for (var k = 0; k < 3; k++)
                             {
-                                for (var k = 0; k < 3; k++)
+                                var temp = gray * rgba[2 - k];
+                                temp = temp < 0 ? 0 : temp > 1 ? 1 : temp;
+                                if (k == 0 || !overlay)
                                 {
-                                    var temp = gray * rgba[2 - k];
-                                    temp = temp < 0 ? 0 : temp > 1 ? 1 : temp;
-                                    if (k == 0 || !overlay)
-                                    {
-                                        multiplierArray[i + k] = (byte)(temp * byte.MaxValue);
-                                    }
-                                    else
-                                    {
-                                        multiplierArray[i + k] = (byte)((blend * temp + (1 - blend) * multiplierArray[i + k] * kInverseByteMax) * byte.MaxValue);
-                                    }
+                                    multiplierArray[i + k] = (byte)(temp * byte.MaxValue);
                                 }
-                                continue;
+                                else
+                                {
+                                    multiplierArray[i + k] = (byte)((blend * temp + (1 - blend) * multiplierArray[i + k] * kInverseByteMax) * byte.MaxValue);
+                                }
                             }
-                            var image = patternImages[j] as Bitmap;
-                            if (image != null)
-                            {
-                                int currentX,
-                                currentY = Math.DivRem(i >> 2, multiplierCopy.Width, out currentX),
-                                height,
-                                width;
-                                Math.DivRem(currentX, image.Width, out width);
-                                Math.DivRem(currentY, image.Height, out height);
-                                var color = image.GetPixel(width, height);
-                                rgba = new float[]
+                            continue;
+                        }
+                        var image = patternImages[j] as Bitmap;
+                        if (image != null)
+                        {
+                            int currentX,
+                            currentY = Math.DivRem(i >> 2, multiplierCopy.Width, out currentX),
+                            height,
+                            width;
+                            Math.DivRem(currentX, image.Width, out width);
+                            Math.DivRem(currentY, image.Height, out height);
+                            var color = image.GetPixel(width, height);
+                            rgba = new float[]
                                 {
                                     color.R * kInverseByteMax,
                                     color.G * kInverseByteMax,
                                     color.B * kInverseByteMax,
                                     color.A * kInverseByteMax
                                 };
-                                for (var k = 0; k < 3; k++)
+                            for (var k = 0; k < 3; k++)
+                            {
+                                var temp = gray * rgba[2 - k];
+                                temp = temp < 0 ? 0 : temp > 1 ? 1 : temp;
+                                if (k == 0 || !overlay)
                                 {
-                                    var temp = gray * rgba[2 - k];
-                                    temp = temp < 0 ? 0 : temp > 1 ? 1 : temp;
-                                    if (k == 0 || !overlay)
-                                    {
-                                        multiplierArray[i + k] = (byte)(temp * byte.MaxValue);
-                                    }
-                                    else
-                                    {
-                                        multiplierArray[i + k] = (byte)((blend * temp + (1 - blend) * multiplierArray[i + k] * kInverseByteMax) * byte.MaxValue);
-                                    }
+                                    multiplierArray[i + k] = (byte)(temp * byte.MaxValue);
+                                }
+                                else
+                                {
+                                    multiplierArray[i + k] = (byte)((blend * temp + (1 - blend) * multiplierArray[i + k] * kInverseByteMax) * byte.MaxValue);
                                 }
                             }
                         }
                     }
                 }
-                Marshal.Copy(multiplierArray, 0, ptr, byteCount);
-                multiplierCopy.UnlockBits(bitmapData);
             }
-            catch (IndexOutOfRangeException)
-            {
-                multiplierCopy.UnlockBits(bitmapData);
-                throw;
-            }
+            Marshal.Copy(multiplierArray, 0, ptr, byteCount);
+            multiplierCopy.UnlockBits(bitmapData);
             return multiplierCopy;
         }
     }

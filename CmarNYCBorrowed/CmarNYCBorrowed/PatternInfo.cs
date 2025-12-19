@@ -46,6 +46,10 @@
         {
             get
             {
+                if (HSVBaseBG != null || HSVBase != null || HSVBG != null || HSV != null || HSVShiftBG != null || HSVShift != null)
+                {
+                    return PatternType.HSV;
+                }
                 if (SolidColor != null)
                 {
                     return PatternType.Solid;
@@ -53,10 +57,6 @@
                 if (RGBColors.Length > 1)
                 {
                     return PatternType.Colored;
-                }
-                if (HSVBaseBG != null || HSVBase != null || HSVBG != null || HSV != null || HSVShiftBG != null || HSVShift != null)
-                {
-                    return PatternType.HSV;
                 }
                 return PatternType.None;
             }
