@@ -57,7 +57,7 @@ namespace Destrospean.CmarNYCBorrowed
             patternImage = new Bitmap(width, height, PixelFormat.Format32bppArgb);
             var patternBack = new Bitmap[3];
             var rgbMaskArray = package.GetTextureARGBArray(pattern.RGBMask, getTextureCallback, width, height);
-            if (background == null || patternImage == null || rgbMaskArray == null)
+            if (rgbMaskArray == null)
             {
                 return null;
             }
@@ -66,12 +66,12 @@ namespace Destrospean.CmarNYCBorrowed
                 patternBack[i] = package.GetTexture(pattern.Channels[i], getTextureCallback, width, height);
             }
             BitmapData bitmapData0 = patternImage.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, patternImage.PixelFormat),
-            bitmapData1 = background.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, background.PixelFormat),
+            bitmapData1 = background == null ? null : background.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, background.PixelFormat),
             bitmapData2 = null,
             bitmapData3 = null,
             bitmapData4 = null;
             byte[] alphaArray = null,
-            backArray = new byte[Math.Abs(bitmapData1.Stride) * background.Height],
+            backArray = background == null ? null : new byte[Math.Abs(bitmapData1.Stride) * background.Height],
             blueArray = null,
             finalArray = new byte[Math.Abs(bitmapData0.Stride) * patternImage.Height],
             greenArray = null;
@@ -81,11 +81,14 @@ namespace Destrospean.CmarNYCBorrowed
             var ptr = new IntPtr(bitmapData0.Scan0.ToInt64() + (bitmapData0.Stride > 0 ? 0 : bitmapData0.Stride * (patternImage.Height - 1)));
 #endif
             Marshal.Copy(ptr, finalArray, 0, finalArray.Length);
+            if (background != null)
+            {
 #if WIN32
-            Marshal.Copy(new IntPtr(bitmapData1.Scan0.ToInt32() + (bitmapData1.Stride > 0 ? 0 : bitmapData1.Stride * (background.Height - 1))), backArray, 0, backArray.Length);
+                Marshal.Copy(new IntPtr(bitmapData1.Scan0.ToInt32() + (bitmapData1.Stride > 0 ? 0 : bitmapData1.Stride * (background.Height - 1))), backArray, 0, backArray.Length);
 #else
-            Marshal.Copy(new IntPtr(bitmapData1.Scan0.ToInt64() + (bitmapData1.Stride > 0 ? 0 : bitmapData1.Stride * (background.Height - 1))), backArray, 0, backArray.Length);
+                Marshal.Copy(new IntPtr(bitmapData1.Scan0.ToInt64() + (bitmapData1.Stride > 0 ? 0 : bitmapData1.Stride * (background.Height - 1))), backArray, 0, backArray.Length);
 #endif
+            }
             if (pattern.ChannelsEnabled != null && pattern.ChannelsEnabled.Length > 0 && pattern.ChannelsEnabled[0] && patternBack[0] != null)
             {
                 bitmapData2 = patternBack[0].LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, patternBack[0].PixelFormat);
@@ -122,7 +125,7 @@ namespace Destrospean.CmarNYCBorrowed
             greenChannel = pattern.HSV == null || pattern.HSV.Length < 1 ? new HSVColor(0, 0, 0) : new HSVColor(pattern.HSV[0][0] * 360, pattern.HSV[0][1], pattern.HSV[0][2]);
             for (var i = 0; i < finalArray.Length; i += 4)
             {
-                var hsv = new HSVColor(backArray[i + 2], backArray[i + 1], backArray[i]);
+                var hsv = backArray == null ? new HSVColor(0, 0, 0) : new HSVColor(backArray[i + 2], backArray[i + 1], backArray[i]);
                 byte[] color = (hsv + backChannel).ToRGB(),
                 maskArray = BitConverter.GetBytes(rgbMaskArray[i >> 2]);
                 if (pattern.ChannelsEnabled != null && pattern.ChannelsEnabled.Length > 0 && pattern.ChannelsEnabled[0] && maskArray[1] > 0)
@@ -161,7 +164,10 @@ namespace Destrospean.CmarNYCBorrowed
             }
             Marshal.Copy(finalArray, 0, ptr, finalArray.Length);
             patternImage.UnlockBits(bitmapData0);
-            background.UnlockBits(bitmapData1);
+            if (background != null)
+            {
+                background.UnlockBits(bitmapData1);
+            }
             if (pattern.ChannelsEnabled != null && pattern.ChannelsEnabled.Length > 0 && pattern.ChannelsEnabled[0])
             {
                 patternBack[0].UnlockBits(bitmapData2);
