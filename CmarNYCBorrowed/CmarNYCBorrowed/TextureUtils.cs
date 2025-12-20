@@ -256,11 +256,11 @@ namespace Destrospean.CmarNYCBorrowed
                 image = getTextureCallback(evaluated.Package, evaluated.ResourceIndexEntry);
                 if (evaluated.Package == package)
                 {
-                    PreloadedImages.Add(key, image);
+                    PreloadedImages[key] = image;
                 }
                 else
                 {
-                    PreloadedGameImages.Add(key, image);
+                    PreloadedGameImages[key] = image;
                 }
             }
             if (dimensions != null && dimensions[0] != image.Size.Width && dimensions[1] != image.Size.Height)
