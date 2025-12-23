@@ -127,8 +127,10 @@ namespace Destrospean.CmarNYCBorrowed
                 }
                 else if (mType == EntryType.BoneEntry)
                 {
-                    mTGIRefs = new int[1];
-                    mTGIRefs[0] = reader.ReadInt32();
+                    mTGIRefs = new int[]
+                        {
+                            reader.ReadInt32()
+                        };
                 }
             }
 
