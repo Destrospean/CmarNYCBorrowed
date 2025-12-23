@@ -250,7 +250,9 @@ namespace Destrospean.CmarNYCBorrowed
             }
         }
 
-        public VPXY(TGI tgi, TGI[][] geomTGIs) : this(tgi, new TGI[] { }, geomTGIs)
+        public VPXY(TGI tgi, TGI[][] geomTGIs) : this(tgi, new TGI[]
+            {
+            }, geomTGIs)
         {
         }
 
@@ -271,7 +273,7 @@ namespace Destrospean.CmarNYCBorrowed
                 };
             mChunkPosition = 44;
             mChunkSize = 141;
-            mMagic = new char[4]
+            mMagic = new char[]
                 {
                     'V',
                     'P',
