@@ -1004,42 +1004,44 @@ namespace Destrospean.CmarNYCBorrowed
 
         public class MTNF
         {
-            object[][] mDataList;
-
-            int mDataSize, mParamCount, mZero;
+            int mDataSize, mZero;
 
             char[] mMagic;
-
-            uint[][] mParamList;
 
             public int ChunkSize
             {
                 get
                 {
-                    return 16 + mParamCount * 16 + mDataSize;
+                    return 16 + FieldCount * 16 + mDataSize;
                 }
             }
+
+            public object[][] Data;
+
+            public int FieldCount;
+
+            public uint[][] Fields;
 
             public int EmissionIndex
             {
                 get
                 {
-                    for (var i = 0; i < mParamCount; i++)
+                    for (var i = 0; i < FieldCount; i++)
                     {
-                        if (mParamList[i][0] == (uint)FieldType.EmissionMap)
+                        if (Fields[i][0] == (uint)FieldType.EmissionMap)
                         {
-                            return (int)(uint)mDataList[i][0];
+                            return (int)(uint)Data[i][0];
                         }
                     }
                     return -1;
                 }
                 set
                 {
-                    for (var i = 0; i < mParamCount; i++)
+                    for (var i = 0; i < FieldCount; i++)
                     {
-                        if (mParamList[i][0] == (uint)FieldType.EmissionMap)
+                        if (Fields[i][0] == (uint)FieldType.EmissionMap)
                         {
-                            mDataList[i][0] = (uint)value;
+                            Data[i][0] = (uint)value;
                         }
                     }
 
@@ -1050,22 +1052,22 @@ namespace Destrospean.CmarNYCBorrowed
             {
                 get
                 {
-                    for (var i = 0; i < mParamCount; i++)
+                    for (var i = 0; i < FieldCount; i++)
                     {
-                        if (mParamList[i][0] == (uint)FieldType.NormalMap)
+                        if (Fields[i][0] == (uint)FieldType.NormalMap)
                         {
-                            return (int)(uint)mDataList[i][0];
+                            return (int)(uint)Data[i][0];
                         }
                     }
                     return -1;
                 }
                 set
                 {
-                    for (var i = 0; i < mParamCount; i++)
+                    for (var i = 0; i < FieldCount; i++)
                     {
-                        if (mParamList[i][0] == (uint)FieldType.NormalMap)
+                        if (Fields[i][0] == (uint)FieldType.NormalMap)
                         {
-                            mDataList[i][0] = (uint)value;
+                            Data[i][0] = (uint)value;
                         }
                     }
 
@@ -1081,39 +1083,39 @@ namespace Destrospean.CmarNYCBorrowed
                 mMagic = reader.ReadChars(4);
                 mZero = reader.ReadInt32();
                 mDataSize = reader.ReadInt32();
-                mParamCount = reader.ReadInt32();
-                mParamList = new uint[mParamCount][];
-                for (var i = 0; i < mParamCount; i++)
+                FieldCount = reader.ReadInt32();
+                Fields = new uint[FieldCount][];
+                for (var i = 0; i < FieldCount; i++)
                 {
-                    mParamList[i] = new uint[4];
+                    Fields[i] = new uint[4];
                     for (var j = 0; j < 4; j++)
                     {
-                        mParamList[i][j] = reader.ReadUInt32();
+                        Fields[i][j] = reader.ReadUInt32();
                     }
                 }
-                mDataList = new object[mParamCount][];
-                for (var i = 0; i < mParamCount; i++)
+                Data = new object[FieldCount][];
+                for (var i = 0; i < FieldCount; i++)
                 {
-                    mDataList[i] = new object[mParamList[i][2]];
-                    if (mParamList[i][1] == 1)
+                    Data[i] = new object[Fields[i][2]];
+                    if (Fields[i][1] == 1)
                     {
-                        for (var j = 0; j < mParamList[i][2]; j++)
+                        for (var j = 0; j < Fields[i][2]; j++)
                         {
-                            mDataList[i][j] = reader.ReadSingle();
+                            Data[i][j] = reader.ReadSingle();
                         }
                     }
-                    else if (mParamList[i][1] == 2)
+                    else if (Fields[i][1] == 2)
                     {
-                        for (var j = 0; j < mParamList[i][2]; j++)
+                        for (var j = 0; j < Fields[i][2]; j++)
                         {
-                            mDataList[i][j] = reader.ReadInt32();
+                            Data[i][j] = reader.ReadInt32();
                         }
                     }
                     else
                     {
-                        for (var j = 0; j < mParamList[i][2]; j++)
+                        for (var j = 0; j < Fields[i][2]; j++)
                         {
-                            mDataList[i][j] = reader.ReadUInt32();
+                            Data[i][j] = reader.ReadUInt32();
                         }
                     }
                 }
@@ -1124,43 +1126,43 @@ namespace Destrospean.CmarNYCBorrowed
                 mMagic = System.Text.Encoding.UTF8.GetString(BitConverter.GetBytes(shaderDataArray[0])).ToCharArray();
                 mZero = (int)shaderDataArray[1];
                 mDataSize = (int)shaderDataArray[2];
-                mParamCount = (int)shaderDataArray[3];
-                mParamList = new uint[mParamCount][];
-                mDataList = new object[mParamCount][];
+                FieldCount = (int)shaderDataArray[3];
+                Fields = new uint[FieldCount][];
+                Data = new object[FieldCount][];
                 var index = 4;
-                for (var i = 0; i < mParamCount; i++)
+                for (var i = 0; i < FieldCount; i++)
                 {
-                    mParamList[i] = new uint[4];
+                    Fields[i] = new uint[4];
                     for (var j = 0; j < 4; j++)
                     {
-                        mParamList[i][j] = shaderDataArray[index];
+                        Fields[i][j] = shaderDataArray[index];
                         index++;
                     }
                 }
-                for (var i = 0; i < mParamCount; i++)
+                for (var i = 0; i < FieldCount; i++)
                 {
-                    mDataList[i] = new object[mParamList[i][2]];
-                    if (mParamList[i][1] == 1)
+                    Data[i] = new object[Fields[i][2]];
+                    if (Fields[i][1] == 1)
                     {
-                        for (var j = 0; j < mParamList[i][2]; j++)
+                        for (var j = 0; j < Fields[i][2]; j++)
                         {
-                            mDataList[i][j] = BitConverter.ToSingle(BitConverter.GetBytes(shaderDataArray[index]), 0);
+                            Data[i][j] = BitConverter.ToSingle(BitConverter.GetBytes(shaderDataArray[index]), 0);
                             index++;
                         }
                     }
-                    else if (mParamList[i][1] == 2)
+                    else if (Fields[i][1] == 2)
                     {
-                        for (var j = 0; j < mParamList[i][2]; j++)
+                        for (var j = 0; j < Fields[i][2]; j++)
                         {
-                            mDataList[i][j] = (int)shaderDataArray[index];
+                            Data[i][j] = (int)shaderDataArray[index];
                             index++;
                         }
                     }
                     else
                     {
-                        for (var j = 0; j < mParamList[i][2]; j++)
+                        for (var j = 0; j < Fields[i][2]; j++)
                         {
-                            mDataList[i][j] = shaderDataArray[index];
+                            Data[i][j] = shaderDataArray[index];
                             index++;
                         }
                     }
@@ -1172,50 +1174,50 @@ namespace Destrospean.CmarNYCBorrowed
                 mMagic = source.mMagic;
                 mZero = source.mZero;
                 mDataSize = source.mDataSize;
-                mParamCount = source.mParamCount;
-                mParamList = new uint[source.mParamList.Length][];
-                for (var i = 0; i < source.mParamList.Length; i++)
+                FieldCount = source.FieldCount;
+                Fields = new uint[source.Fields.Length][];
+                for (var i = 0; i < source.Fields.Length; i++)
                 {
-                    mParamList[i] = new uint[source.mParamList[i].Length];
-                    for (var j = 0; j < source.mParamList[i].Length; j++)
+                    Fields[i] = new uint[source.Fields[i].Length];
+                    for (var j = 0; j < source.Fields[i].Length; j++)
                     {
-                        mParamList[i][j] = source.mParamList[i][j];
+                        Fields[i][j] = source.Fields[i][j];
                     }
                 }
-                mDataList = new object[source.mDataList.Length][];
-                for (var i = 0; i < source.mDataList.Length; i++)
+                Data = new object[source.Data.Length][];
+                for (var i = 0; i < source.Data.Length; i++)
                 {
-                    mDataList[i] = new object[source.mDataList[i].Length];
-                    for (var j = 0; j < source.mDataList[i].Length; j++)
+                    Data[i] = new object[source.Data[i].Length];
+                    for (var j = 0; j < source.Data[i].Length; j++)
                     {
-                        mDataList[i][j] = source.mDataList[i][j];
+                        Data[i][j] = source.Data[i][j];
                     }
                 }
             }
 
-            public uint[] GetParamsList()
+            public uint[] GetFields()
             {
-                var temp = new uint[mParamCount];
-                for (var i = 0; i < mParamCount; i++)
+                var temp = new uint[FieldCount];
+                for (var i = 0; i < FieldCount; i++)
                 {
-                    temp[i] = mParamList[i][0];
+                    temp[i] = Fields[i][0];
                 }
                 return temp;
             }
 
-            public object[] GetParamValue(uint parameter, out int valueType)
+            public object[] GetFieldValue(uint field, out int valueType)
             {
                 object[] temp = null;
-                for (var i = 0; i < mParamCount; i++)
+                for (var i = 0; i < FieldCount; i++)
                 {
-                    if (mParamList[i][0] == parameter)
+                    if (Fields[i][0] == field)
                     {
-                        temp = new object[mParamList[i][2]];
+                        temp = new object[Fields[i][2]];
                         for (var j = 0; j < temp.Length; j++)
                         {
-                            temp[j] = mDataList[i][j];
+                            temp[j] = Data[i][j];
                         }
-                        valueType = (int)mParamList[i][1];
+                        valueType = (int)Fields[i][1];
                         return temp;
                     }
                 }
@@ -1229,35 +1231,35 @@ namespace Destrospean.CmarNYCBorrowed
                 temp.Add(BitConverter.ToUInt32(System.Text.Encoding.UTF8.GetBytes(mMagic), 0));
                 temp.Add((uint)mZero);
                 temp.Add((uint)mDataSize);
-                temp.Add((uint)mParamCount);
-                for (var i = 0; i < mParamCount; i++)
+                temp.Add((uint)FieldCount);
+                for (var i = 0; i < FieldCount; i++)
                 {
                     for (var j = 0; j < 4; j++)
                     {
-                        temp.Add(mParamList[i][j]);
+                        temp.Add(Fields[i][j]);
                     }
                 }
-                for (var i = 0; i < mParamCount; i++)
+                for (var i = 0; i < FieldCount; i++)
                 {
-                    if (mParamList[i][1] == 1)
+                    if (Fields[i][1] == 1)
                     {
-                        for (var j = 0; j < mParamList[i][2]; j++)
+                        for (var j = 0; j < Fields[i][2]; j++)
                         {
-                            temp.Add(BitConverter.ToUInt32(BitConverter.GetBytes((float)mDataList[i][j]), 0));
+                            temp.Add(BitConverter.ToUInt32(BitConverter.GetBytes((float)Data[i][j]), 0));
                         }
                     }
-                    else if (mParamList[i][1] == 2)
+                    else if (Fields[i][1] == 2)
                     {
-                        for (var j = 0; j < mParamList[i][2]; j++)
+                        for (var j = 0; j < Fields[i][2]; j++)
                         {
-                            temp.Add((uint)(int)mDataList[i][j]);
+                            temp.Add((uint)(int)Data[i][j]);
                         }
                     }
                     else
                     {
-                        for (var j = 0; j < mParamList[i][2]; j++)
+                        for (var j = 0; j < Fields[i][2]; j++)
                         {
-                            temp.Add((uint)mDataList[i][j]);
+                            temp.Add((uint)Data[i][j]);
                         }
                     }
                 }
@@ -1269,35 +1271,35 @@ namespace Destrospean.CmarNYCBorrowed
                 writer.Write(mMagic);
                 writer.Write(mZero);
                 writer.Write(mDataSize);
-                writer.Write(mParamCount);
-                for (var i = 0; i < mParamCount; i++)
+                writer.Write(FieldCount);
+                for (var i = 0; i < FieldCount; i++)
                 {
                     for (var j = 0; j < 4; j++)
                     {
-                        writer.Write(mParamList[i][j]);
+                        writer.Write(Fields[i][j]);
                     }
                 }
-                for (var i = 0; i < mParamCount; i++)
+                for (var i = 0; i < FieldCount; i++)
                 {
-                    if (mParamList[i][1] == 1)
+                    if (Fields[i][1] == 1)
                     {
-                        for (var j = 0; j < mParamList[i][2]; j++)
+                        for (var j = 0; j < Fields[i][2]; j++)
                         {
-                            writer.Write((float)mDataList[i][j]);
+                            writer.Write((float)Data[i][j]);
                         }
                     }
-                    else if (mParamList[i][1] == 2)
+                    else if (Fields[i][1] == 2)
                     {
-                        for (var j = 0; j < mParamList[i][2]; j++)
+                        for (var j = 0; j < Fields[i][2]; j++)
                         {
-                            writer.Write((int)mDataList[i][j]);
+                            writer.Write((int)Data[i][j]);
                         }
                     }
                     else
                     {
-                        for (var j = 0; j < mParamList[i][2]; j++)
+                        for (var j = 0; j < Fields[i][2]; j++)
                         {
-                            writer.Write((uint)mDataList[i][j]);
+                            writer.Write((uint)Data[i][j]);
                         }
                     }
                 }
