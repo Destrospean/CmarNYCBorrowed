@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Destrospean.S3PIAbstractions;
-using GeometryResource = meshExpImp.ModelBlocks.GeometryResource;
 
 namespace Destrospean.CmarNYCBorrowed
 {
@@ -33,11 +32,11 @@ namespace Destrospean.CmarNYCBorrowed
             return specifier;
         }
 
-        public static RIG GetTS3Rig(this s3pi.Interfaces.IPackage package, Species species, AgeGender age)
+        public static RIG GetRig(this s3pi.Interfaces.IPackage package, Species species, AgeGender age)
         {
             var rigName = GetRigPrefix(species, age, AgeGender.Unisex) + "Rig";
             var evaluated = package.EvaluateResourceKey(new ResourceUtils.ResourceKey(ResourceUtils.GetResourceType("_RIG"), 0, System.Security.Cryptography.FNV64.GetHash(rigName)).ReverseEvaluateResourceKey());
-            return new RIG(new System.IO.BinaryReader(s3pi.WrapperDealer.WrapperDealer.GetResource(0, evaluated.Package, evaluated.ResourceIndexEntry).Stream));
+            return new RIG(new System.IO.BinaryReader(((s3pi.Interfaces.APackage)evaluated.Package).GetResource(evaluated.ResourceIndexEntry)));
         }
 
         public static GEOM LoadBGEOMorph(this GEOM baseMesh, BGEO morph, int lod, Species species, AgeGender age, AgeGender gender)
@@ -180,16 +179,6 @@ namespace Destrospean.CmarNYCBorrowed
                 morphMesh.SetNormal(i, (normal + delta * weight).Coordinates);
             }
             return morphMesh;
-        }
-
-        public static BGEO ToBGEO(this CASPartResource.BlendGeometryResource blendGeometryResource)
-        {
-            return new BGEO(new System.IO.BinaryReader(blendGeometryResource.Stream));
-        }
-
-        public static GEOM ToGEOM(this GeometryResource geometryResource)
-        {
-            return new GEOM(new System.IO.BinaryReader(geometryResource.Stream));
         }
     }
 }
