@@ -157,7 +157,15 @@ namespace Destrospean.CmarNYCBorrowed
             {
                 for (var j = 0; j < morphs[i].VertexCount; j++)
                 {
-                    var id = morphs[i].GetVertexID(j);
+                    int id;
+                    try
+                    {
+                        id = morphs[i].GetVertexID(j);
+                    }
+                    catch (System.NullReferenceException)
+                    {
+                        continue;
+                    }
                     if (!deltaNormals.ContainsKey(id))
                     {
                         deltaNormals.Add(id, new Vector3(morphs[i].GetNormal(j)));
@@ -170,7 +178,15 @@ namespace Destrospean.CmarNYCBorrowed
             }
             for (var i = 0; i < morphMesh.VertexCount; i++)
             {
-                var vertexID = morphMesh.GetVertexID(i);
+                int vertexID;
+                try
+                {
+                    vertexID = morphMesh.GetVertexID(i);
+                }
+                catch (System.NullReferenceException)
+                {
+                    continue;
+                }
                 Vector3 delta = new Vector3(),
                 normal = new Vector3(morphMesh.GetNormal(i)),
                 position = new Vector3(morphMesh.GetPosition(i));

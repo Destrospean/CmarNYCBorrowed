@@ -3758,7 +3758,7 @@ namespace Destrospean.CmarNYCBorrowed
 
         public int GetVertexID(int vertexSequenceNumber)
         {
-            return (int)mVertexIDs[vertexSequenceNumber];
+            return mVertexIDs[vertexSequenceNumber];
         }
             
         public int[] GetVertexIndicesAssignedtoBone(uint boneHash)
@@ -3766,10 +3766,7 @@ namespace Destrospean.CmarNYCBorrowed
             var index = GetBoneIndex(boneHash);
             if (index < 0)
             {
-                return new int[]
-                {
-
-                };
+                return new int[0];
             }
             var vertices = new List<int>();
             for (var i = 0; i < VertexCount; i++)
