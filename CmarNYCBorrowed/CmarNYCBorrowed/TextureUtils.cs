@@ -231,7 +231,7 @@ namespace Destrospean.CmarNYCBorrowed
                 textureArray[i + 3] = byte.MaxValue;
             }
 #if WIN32
-            Marshal.Copy(textureArray, 0, new IntPtr(bitmapData.Scan0.ToInt32() + (bitmapData.Stride > 0 ? 0 : bitmapData.Stride * (texture.Height - 1))), byteCount);
+            Marshal.Copy(textureArray, 0, new IntPtr(bitmapData.Scan0.ToInt32() + (bitmapData.Stride > 0 ? 0 : bitmapData.Stride * (patternImage.Height - 1))), byteCount);
 #else
             Marshal.Copy(textureArray, 0, new IntPtr(bitmapData.Scan0.ToInt64() + (bitmapData.Stride > 0 ? 0 : bitmapData.Stride * (patternImage.Height - 1))), byteCount);
 #endif
