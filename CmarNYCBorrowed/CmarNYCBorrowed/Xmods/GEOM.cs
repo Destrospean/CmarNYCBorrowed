@@ -3370,7 +3370,7 @@ namespace Destrospean.CmarNYCBorrowed
                         updateProgressCallback();
                     }
                     int j = 0,
-                    vertexIndex = 0;;
+                    vertexIndex = 0;
                     var temp = new int[3];
                     foreach (var facePoint in face.FacePoints)
                     {
