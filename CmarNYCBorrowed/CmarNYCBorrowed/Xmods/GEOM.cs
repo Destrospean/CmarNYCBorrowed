@@ -2183,11 +2183,11 @@ namespace Destrospean.CmarNYCBorrowed
             float[] normalDeltas = null,
             positionDeltas = null;
             for (var i = section2StartIndex; i < section2StartIndex + bgeo.GetSection2Count(bgeoSection1EntryNumber, lod); i++)
-            {                                                               //navigate list of flags and offsets in section 2
+            {                                                           //navigate list of flags and offsets in section 2
                 var section2 = bgeo.GetSection2(i);
-                if (section2.HasPosition || section2.HasNormals)            //check flags for whether position data/normals data is present
+                if (section2.HasPosition || section2.HasNormals)        //check flags for whether position data/normals data is present
                 {
-                    section3Index = section3Index + section2.Offset;        //position to section 3 index
+                    section3Index = section3Index + section2.Offset;    //position to section 3 index
                     var advance = 0;
                     positionDeltas = new float[]
                         {
@@ -2201,18 +2201,18 @@ namespace Destrospean.CmarNYCBorrowed
                             0,
                             0
                         };
-                    if (section2.HasPosition)                               //read position data if present
+                    if (section2.HasPosition)                           //read position data if present
                     {
                         positionDeltas = bgeo.GetSection3(section3Index);
                         advance = 1;
                     }
-                    if (section2.HasNormals)                                //normal data follows if present
+                    if (section2.HasNormals)                            //normal data follows if present
                     {
                         normalDeltas = bgeo.GetSection3(section3Index + advance);
                     }
-                    for (var j = 0; j < VertexCount; j++)                   //search mesh for all verts with matching vertex ID
+                    for (var j = 0; j < VertexCount; j++)               //search mesh for all vertices with matching vertex ID
                     {
-                        if (mVertexIDs[j] == currentVertexID)
+                        if (mVertexIDs != null && mVertexIDs[j] == currentVertexID)
                         {
                             mPositions[j].AddDeltas(positionDeltas);
                             mNormals[j].AddDeltas(normalDeltas);

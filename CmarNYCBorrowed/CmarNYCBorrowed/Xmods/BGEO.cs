@@ -776,7 +776,12 @@ namespace Destrospean.CmarNYCBorrowed
 
         public float[] GetSection3(int section3Index)
         {
-            return mSection3[section3Index].DeltaValues;
+            return section3Index < mSection3.Length ? mSection3[section3Index].DeltaValues : new float[]
+            {
+                0,
+                0,
+                0
+            };
         }
 
         public int GetSection3Count(int section1EntryIndex, int lod)

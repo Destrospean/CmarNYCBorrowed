@@ -350,7 +350,7 @@ namespace Destrospean.CmarNYCBorrowed
             mTGISize = mTGICount * 16 + 4;
         }
 
-        public TGI[] MeshLinks(int lod)
+        public TGI[] GetMeshLinks(int lod)
         {
             var temp = new List<TGI>();
             foreach (var entry in mEntries)
