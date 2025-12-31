@@ -7858,7 +7858,10 @@ namespace Destrospean.CmarNYCBorrowed
                             mTags[i].Write(writer);
                             break;
                         case 10:
-                            writer.Write(mVertexIDs[i]);
+                            if (mVertexIDs != null)
+                            {
+                                writer.Write(mVertexIDs[i]);
+                            }
                             break;
                     }
                 }

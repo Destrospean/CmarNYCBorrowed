@@ -217,7 +217,7 @@ namespace Destrospean.CmarNYCBorrowed
                     };
                 for (var j = 0; j < colors.GetLength(0); j++)
                 {
-                    if (colors[j] != null && maskControl[j] > 0)
+                    if (colors[j] != null && maskControl.Length > j && maskControl[j] > 0)
                     {
                         var blend = maskControl[j] * kInverseByteMax;
                         for (var k = 0; k < 3; k++)
