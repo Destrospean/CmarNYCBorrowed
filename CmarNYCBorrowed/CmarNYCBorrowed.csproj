@@ -62,7 +62,6 @@
     <Compile Include="Xmods\OBJ.cs" />
     <Compile Include="Xmods\Plane.cs" />
     <Compile Include="Xmods\Quaternion.cs" />
-    <Compile Include="Xmods\RIG.cs" />
     <Compile Include="Xmods\Seams.cs" />
     <Compile Include="Xmods\TGI.cs" />
     <Compile Include="Xmods\Triangle.cs" />
@@ -70,6 +69,7 @@
     <Compile Include="Xmods\Vector3.cs" />
     <Compile Include="Xmods\VPXY.cs" />
     <Compile Include="Xmods\WSO.cs" />
+    <Compile Include="Xmods\Rig.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

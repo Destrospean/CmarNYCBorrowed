@@ -2835,7 +2835,7 @@ namespace Destrospean.CmarNYCBorrowed
             CopyFaceMorphs = true;
         }
 
-        public void BoneDeVectorize(RIG.Bone bone, float weight)
+        public void BoneDeVectorize(Rig.Bone bone, float weight)
         {
             if (weight == 0)
             {
@@ -2856,7 +2856,7 @@ namespace Destrospean.CmarNYCBorrowed
             }
         }
 
-        public void BoneMorpher(RIG.Bone bone, float weight, Vector3 offset, Vector3 scale, Quaternion rotation)
+        public void BoneMorpher(Rig.Bone bone, float weight, Vector3 offset, Vector3 scale, Quaternion rotation)
         {
             if (weight == 0)
             {
@@ -2889,7 +2889,7 @@ namespace Destrospean.CmarNYCBorrowed
             }
         }
 
-        public void BoneMorpher2(RIG.Bone bone, float weight, Vector3 scale, Quaternion rotation)
+        public void BoneMorpher2(Rig.Bone bone, float weight, Vector3 scale, Quaternion rotation)
         {
             if (weight == 0)
             {
@@ -2914,7 +2914,7 @@ namespace Destrospean.CmarNYCBorrowed
             }
         }
 
-        public void BoneVectorize(RIG.Bone bone)
+        public void BoneVectorize(Rig.Bone bone)
         {
             var bonePosition = bone.WorldPosition;
             DeltaPosition = new Vector3[mPositions.Length];

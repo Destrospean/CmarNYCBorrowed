@@ -244,12 +244,12 @@ namespace Destrospean.CmarNYCBorrowed
             Bitmap image;
             if (!PreloadedGameImages.TryGetValue(key, out image) && !PreloadedImages.TryGetValue(key, out image))
             {
-                ResourceUtils.EvaluatedResourceKey evaluated;
+                EvaluatedResourceKey evaluated;
                 try
                 {
                     evaluated = package.EvaluateImageResourceKey(key);
                 }
-                catch (ResourceUtils.ResourceIndexEntryNotFoundException)
+                catch (ResourceIndexEntryNotFoundException)
                 {
                     return null;
                 }

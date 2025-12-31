@@ -32,11 +32,11 @@ namespace Destrospean.CmarNYCBorrowed
             return specifier;
         }
 
-        public static RIG GetRig(this s3pi.Interfaces.IPackage package, Species species, AgeGender age)
+        public static Rig GetRig(this s3pi.Interfaces.IPackage package, Species species, AgeGender age)
         {
             var rigName = GetRigPrefix(species, age, AgeGender.Unisex) + "Rig";
-            var evaluated = package.EvaluateResourceKey(new ResourceUtils.ResourceKey(ResourceUtils.GetResourceType("_RIG"), 0, System.Security.Cryptography.FNV64.GetHash(rigName)).ReverseEvaluateResourceKey());
-            return new RIG(new System.IO.BinaryReader(((s3pi.Interfaces.APackage)evaluated.Package).GetResource(evaluated.ResourceIndexEntry)));
+            var evaluated = package.EvaluateResourceKey(new ResourceKey(ResourceUtils.GetResourceType("_RIG"), 0, System.Security.Cryptography.FNV64.GetHash(rigName)).ReverseEvaluateResourceKey());
+            return new Rig(new System.IO.BinaryReader(((s3pi.Interfaces.APackage)evaluated.Package).GetResource(evaluated.ResourceIndexEntry)));
         }
 
         public static GEOM LoadBGEOMorph(this GEOM baseMesh, BGEO morph, int lod, Species species, AgeGender age, AgeGender gender)
@@ -73,7 +73,7 @@ namespace Destrospean.CmarNYCBorrowed
             return morphMesh;
         }
 
-        public static GEOM LoadBONDMorph(this GEOM baseMesh, BOND boneDelta, RIG rig)
+        public static GEOM LoadBONDMorph(this GEOM baseMesh, BOND boneDelta, Rig rig)
         {
             if (baseMesh == null)
             {

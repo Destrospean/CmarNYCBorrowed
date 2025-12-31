@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Destrospean.CmarNYCBorrowed
 {
-    public class RIG
+    public class Rig
     {
         Bone[] mBones;
 
@@ -60,7 +60,7 @@ namespace Destrospean.CmarNYCBorrowed
             mPosition = new float[3],
             mScaling = new float[3];
 
-            RIG mRig;
+            Rig mRig;
 
             Vector3 mWorldPosition;
 
@@ -219,7 +219,7 @@ namespace Destrospean.CmarNYCBorrowed
                 }
             }
 
-            public RIG Rig
+            public Rig Rig
             {
                 get
                 {
@@ -227,7 +227,7 @@ namespace Destrospean.CmarNYCBorrowed
                 }
             }
 
-            public Bone(Bone other, RIG rig)
+            public Bone(Bone other, Rig rig)
             {
                 mIndex = other.mIndex;
                 mPosition = new float[]
@@ -262,7 +262,7 @@ namespace Destrospean.CmarNYCBorrowed
                 mWorldPosition = new Vector3(other.mWorldPosition);
             }
 
-            public Bone(BinaryReader reader, RIG rig, int index)
+            public Bone(BinaryReader reader, Rig rig, int index)
             {
                 mRig = rig;
                 mIndex = index;
@@ -374,9 +374,9 @@ namespace Destrospean.CmarNYCBorrowed
 
             int mBoneListLength, mPoleVectorIndex, mSlotInfo, mSlotOffsetIndex, mRootIndex;              
 
-            RIG mRig;
+            Rig mRig;
 
-            public IKChain(IKChain other, RIG rig)
+            public IKChain(IKChain other, Rig rig)
             {
                 mBoneListLength = other.mBoneListLength;
                 mBoneIndex = new int[mBoneListLength];
@@ -390,7 +390,7 @@ namespace Destrospean.CmarNYCBorrowed
                 mRig = rig;
             }
 
-            public IKChain(BinaryReader reader, RIG rig)
+            public IKChain(BinaryReader reader, Rig rig)
             {
                 mBoneListLength = reader.ReadInt32();
                 mBoneIndex = new int[mBoneListLength];
@@ -424,7 +424,7 @@ namespace Destrospean.CmarNYCBorrowed
             }
         }
 
-        public RIG(RIG other)
+        public Rig(Rig other)
         {
             mVersion = other.mVersion;
             mMinorVersion = other.mMinorVersion;
@@ -442,7 +442,7 @@ namespace Destrospean.CmarNYCBorrowed
             }
         }
 
-        public RIG(BinaryReader reader)
+        public Rig(BinaryReader reader)
         {
             reader.BaseStream.Position = 0;
             mVersion = reader.ReadInt32();
